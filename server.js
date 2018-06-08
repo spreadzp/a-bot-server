@@ -16,8 +16,7 @@ const server = new net.Server(function (socket) {
         if(message.type === 'notification') {
             let diff = Date.now() - parseInt(message.payload.params[4]) + parseInt(message.payload.params[3]);
             console.log(`timeStamp ${message.payload.method} = ${diff} ms`);
-            parseMessage(message);
-            
+            parseMessage(message); 
             showPrice(priceTable);
         }
         if (message.type === 'request') {
@@ -25,7 +24,7 @@ const server = new net.Server(function (socket) {
             
             //const newExchange = parseMessage(message);
             //console.log('message :', message);
-            startClient(message.payload.params)
+            //startClient(message.payload.params)
             // echo request 
             socket.success(message.payload.id, message.payload.params)
         }
