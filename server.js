@@ -9,6 +9,7 @@ let tmpMessage;
 
 const server = new net.Server(function (socket) {
     socket.on('message', (message) => {
+        console.log('message :', message);
         // { payload: { jsonrpc: '2.0', method: 'hello', params: [ 1 ] },
         //   type: 'notification' }
        // showPrice(message);
