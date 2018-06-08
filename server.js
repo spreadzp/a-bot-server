@@ -9,7 +9,7 @@ let tmpMessage;
 
 const server = new net.Server(function (socket) {
     socket.on('message', (message) => {
-        console.log('message :', message);
+        //console.log('message :', message);
         // { payload: { jsonrpc: '2.0', method: 'hello', params: [ 1 ] },
         //   type: 'notification' }
         // showPrice(message);
@@ -21,10 +21,8 @@ const server = new net.Server(function (socket) {
         }
         if (message.type === 'request') {
             setNewMessage(message);
-
-            //const newExchange = parseMessage(message);
-            //console.log('message :', message);
-            //startClient(message.payload.params)
+ 
+            startClient(message.payload.params)
             // echo request 
             socket.success(message.payload.id, message.payload.params)
         }
@@ -44,13 +42,7 @@ function parseMessage(message) {
     const splitMethodName = message.payload.method.split(' ');
     let flag = true;
     if (pricesFromExchanges.length > 0) {
-        pricesFromExchanges.find(function (value, index) {
-
-            /*  // Delete element 5 on first iteration
-             if (index == 0) {
-               console.log('Deleting array[5] with value ' + array[5]);
-               delete array[5];
-             } */
+        pricesFromExchanges.find(function (value, index) { 
             if (value.exchange === splitMethodName[0] && value.asset === splitMethodName[1]) {
                 value.price = message.payload.params[0];
                 flag = false;
@@ -61,9 +53,7 @@ function parseMessage(message) {
                 newPrice.asset = splitMethodName[1];
                 newPrice.price = message.payload.params[0];
                 pricesFromExchanges.push(newPrice);
-            }
-            // Element 5 is still visited even though deleted
-            //console.log('Visited index ' + index + ' with value ' + value); 
+            } 
         });
     } else {
         newPrice = {}
@@ -74,7 +64,7 @@ function parseMessage(message) {
     }
 
 
-    console.log(' pricesFromExchanges:', pricesFromExchanges);
+    //console.log(' pricesFromExchanges:', pricesFromExchanges);
     priceTable[message.payload.method] = message.payload.params[0];
 
 
@@ -93,8 +83,7 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
     // Enable authentication for client
     client.getSignature = function () {
         return auth.sign({ id: 'clientIdxxx' })
-    }
-    //console.log(' tmpMessage:', tmpMessage);
+    } 
     try {
         const totalUrl = `tcp://${url}:${serverPort}`;
         client.connect(totalUrl);
@@ -104,24 +93,4 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
         console.log('err :', e);
     }
 }
-/*   client.request('echo', { connected: true })((err, res) => {
-        console.log(err, res) // null { a: 4 }
-
-        client.destroy()
-        //server.close() */
-     
-      
-function sendPrices(prices) {
-
-    /*  wss.on('connection', function (wsHtml) {
  
-         wsHtml.on('message', function (message) {
-            console.log('received: %s', message)
-           })    
-          //const onlyPrice = Object.keys(priceTable).map(x => priceTable[x])
- 
-          wsHtml.send(`${JSON.stringify(pricesFromExchanges)}`) */
-    //})
-    
-}
-  
