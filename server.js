@@ -97,7 +97,8 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
     }
     //console.log(' tmpMessage:', tmpMessage);
     try{
-        const totalUrl = `tcp://${url}:${serverPort}`;
+        //const totalUrl = `tcp://${url}:${serverPort}`;
+        const totalUrl = `${url}:${serverPort}`;
         console.log('totalUrl :', totalUrl);
         client.connect(totalUrl)
         client.notification('hello', [`+++++++${exchange} ${Date.now()}`])
