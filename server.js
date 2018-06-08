@@ -1,7 +1,5 @@
-const net = require('toa-net') 
+const net = require('toa-net')  
 
-const WebSocketServer = require('ws').Server,
-  wss = new WebSocketServer({port: 40510});
 const pricesFromExchanges = [];
 const exchanges = [];
 const priceTable = {};
@@ -23,6 +21,7 @@ const server = new net.Server(function (socket) {
         }
         if (message.type === 'request') {
             setNewMessage(message);
+            
             //const newExchange = parseMessage(message);
             //console.log('message :', message);
             startClient(message.payload.params)
@@ -84,21 +83,6 @@ server.getAuthenticator = function () {
 
 function showPrice(prices) { 
     sendPrices(prices) 
-     
-    
-}
-//wss.close();
- function sendPrices(prices) {
-   
-    wss.on('connection', function (wsHtml) {
-     
-      /*   wsHtml.on('message', function (message) {
-            console.log('received: %s', message)
-          })   */
-          //const onlyPrice = Object.keys(priceTable).map(x => priceTable[x]) 
- 
-          wsHtml.send(`${JSON.stringify(pricesFromExchanges)}`)
-  })
 } 
   
 
@@ -112,7 +96,9 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
     }
     //console.log(' tmpMessage:', tmpMessage);
     try{
-        client.connect(serverPort)
+        const totalUrl = `tcp://${url}:${serverPort}`;
+        console.log('totalUrl :', totalUrl);
+        client.connect(totalUrl)
         client.notification('hello', [`+++++++${exchange} ${Date.now()}`])
     } catch(e) {
         console.log('err :', e);
