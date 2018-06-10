@@ -77,11 +77,7 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
 
     try {
         const clientSocket = `tcp://${url}:${serverPort}`;
-        if (!client.connected) {
-            client.destroy();
-            createClient(clientSocket);
-        }
-
+        createClient(clientSocket);
         client.on('error', (err) => {
             console.log('err.trace :', err.trace);
             client.destroy();
