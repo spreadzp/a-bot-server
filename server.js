@@ -69,6 +69,7 @@ function createClient(clientSocket) {
         return auth.sign({ id: 'clientIdxxx' })
     }
     client.connect(clientSocket);
+    
 }
 
 function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }) {
@@ -80,8 +81,7 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
         createClient(clientSocket);
         client.on('error', (err) => {
             console.log('err.trace :', err.trace);
-            client.destroy();
-            createClient(clientSocket);
+            client.reconnect();
         });
         client.notification('hello', [`+++++++${exchange} ${Date.now()}`])
     } catch (e) {
