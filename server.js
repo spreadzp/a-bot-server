@@ -5,6 +5,7 @@ const pricesFromExchanges = [];
 const exchanges = [];
 const priceTable = {};
 const auth = new net.Auth('secretxxx');
+let client = null;
 
 const server = new net.Server(function (socket) {
     socket.on('message', (message) => {
@@ -61,26 +62,32 @@ function showPrice(prices) {
     console.log('prices :', prices);
 }
 
-
-function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }) {
-    const newExchange = { serverPort, url, exchange }
-    exchanges.push(newExchange);
-    const client = new net.Client()
+function createClient(clientSocket) {
+    client = new net.Client()
     // Enable authentication for client
     client.getSignature = function () {
         return auth.sign({ id: 'clientIdxxx' })
     }
+    client.connect(clientSocket);
+}
+
+function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }) {
+    const newExchange = { serverPort, url, exchange }
+    exchanges.push(newExchange); 
+    
     try {
         const clientSocket = `tcp://${url}:${serverPort}`;
-        client.connect(clientSocket);
-        client.on('error', () => {
-            setTimeout(() => startConnection(clientSocket), 2000);
+        createClient(clientSocket);
+        client.on('error', (err) => {
+            console.log('err.trace :', err.trace);
+            client.destroy();
+            createClient(clientSocket);
         });
         client.notification('hello', [`+++++++${exchange} ${Date.now()}`])
     } catch (e) {
         console.log('err :', e);
     } finally {
-        client.destroy();
+        //client.destroy();
     }
 
     function startConnection(clientSocket) {
