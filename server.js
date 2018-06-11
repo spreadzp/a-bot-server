@@ -59,7 +59,7 @@ function parseMessage(message) {
 }
 
 function showPrice(prices) {
-    console.log('prices :', prices);
+    //console.log('prices :', prices);
 }
 
 function createClient(clientSocket) {
@@ -80,21 +80,23 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
         const clientSocket = `tcp://${url}:${serverPort}`;
         createClient(clientSocket); 
         client.on('error', (err) => {
-            console.log('err.trace :', err); 
+//console.log('err.trace :', err); 
+            if(err.code ==='ETIMEDOUT') {
+                client.destroy();
+            }
             //createClient(clientSocket);
             clientReconnection(clientSocket)
         });
-        client.notification('hello', [`+++++++${exchange} ${Date.now()}`])
-        console.log('success client.notification  hello' );
+        client.notification('hello', [`+++++++${exchange} ${Date.now()}`]) 
     } catch (e) {
-        console.log('err :', e);
-        client.destroy()
+        //console.log('err :', e);
+      
     } finally {
         //client.destroy();
     }
 
     function clientReconnection(clientSocket) {
-        console.log('client try reconnecting to port :', clientSocket);
+        //console.log('client try reconnecting to port :', clientSocket);
         client.reconnect();
         logger.log(`info`,
             `client.rpcCount= ${client.rpcCount}
