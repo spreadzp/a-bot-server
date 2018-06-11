@@ -13,7 +13,10 @@ const server = new net.Server(function (socket) {
         //   type: 'notification' } 
         if (message.type === 'notification') {
             let diff = Date.now() - parseInt(message.payload.params[4]) + parseInt(message.payload.params[3]);
-            console.log(`timeStamp ${message.payload.method} = ${diff} ms`);
+            if ( typeof(diff) === number) {
+                console.log(`timeStamp ${message.payload.method} = ${diff} ms`);
+            }
+          
             parseMessage(message);
             showPrice(priceTable);
         }
