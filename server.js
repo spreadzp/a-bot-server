@@ -9,11 +9,9 @@ let client = null;
 
 const server = new net.Server(function (socket) {
     socket.on('message', (message) => {
-        // { payload: { jsonrpc: '2.0', method: 'hello', params: [ 1 ] },
-        //   type: 'notification' } 
         if (message.type === 'notification') {
             let diff = Date.now() - parseInt(message.payload.params[4]) + parseInt(message.payload.params[3]);
-            if ( diff !== NaN) {
+            if (Number.isInteger(diff)) {
                 console.log(`timeStamp ${message.payload.method} = ${diff} ms`);
             }
           
