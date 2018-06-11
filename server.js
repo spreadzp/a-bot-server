@@ -13,7 +13,7 @@ const server = new net.Server(function (socket) {
         //   type: 'notification' } 
         if (message.type === 'notification') {
             let diff = Date.now() - parseInt(message.payload.params[4]) + parseInt(message.payload.params[3]);
-            if ( typeof(diff) === number) {
+            if ( typeof(diff) !== NaN) {
                 console.log(`timeStamp ${message.payload.method} = ${diff} ms`);
             }
           
