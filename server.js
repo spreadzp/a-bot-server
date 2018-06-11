@@ -80,12 +80,15 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
         const clientSocket = `tcp://${url}:${serverPort}`;
         createClient(clientSocket);
         client.on('error', (err) => {
-            console.log('err.trace :', err.trace);
-            client.reconnect();
+            console.log('err.trace :', err); 
+            createClient(clientSocket);
+            startConnection(clientSocket)
         });
         client.notification('hello', [`+++++++${exchange} ${Date.now()}`])
+        console.log('success client.notification  hello' );
     } catch (e) {
         console.log('err :', e);
+        client.destroy()
     } finally {
         //client.destroy();
     }
