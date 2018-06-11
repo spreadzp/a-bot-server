@@ -78,11 +78,11 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
 
     try {
         const clientSocket = `tcp://${url}:${serverPort}`;
-        createClient(clientSocket);
+        createClient(clientSocket); 
         client.on('error', (err) => {
             console.log('err.trace :', err); 
-            createClient(clientSocket);
-            startConnection(clientSocket)
+            //createClient(clientSocket);
+            clientReconnection(clientSocket)
         });
         client.notification('hello', [`+++++++${exchange} ${Date.now()}`])
         console.log('success client.notification  hello' );
@@ -93,9 +93,9 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
         //client.destroy();
     }
 
-    function startConnection(clientSocket) {
-        console.log('client try connecting to port :', clientSocket);
-        client.connect(clientSocket)
+    function clientReconnection(clientSocket) {
+        console.log('client try reconnecting to port :', clientSocket);
+        client.reconnect();
         logger.log(`info`,
             `client.rpcCount= ${client.rpcCount}
             client.socket= ${client.socket}
