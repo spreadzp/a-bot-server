@@ -155,10 +155,10 @@ serverUdp.on('listening',function(){
 serverUdp.on('close',function(){
   console.log('Socket is closed !');
 }); 
-
-serverUdp.bind({
-    address: '54.152.175.163',
+serverUdp.bind(9999);
+/* serverUdp.bind({
+    address: '0.0.0.0',
     port: 9999
 }, (err) => {
     !!err && console.error(err);
-});  
+}); */  
