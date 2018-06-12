@@ -19,7 +19,7 @@
         "jest": "^20.0.4",
         "jest-vue": "^0.5.1",
         "jquery": "^3.1.1",
-        "jwt-decode": "^2.2.0", 
+        "jwt-decode": "^2.2.0",
         "popper.js": "^1.12.9",
         "toa-net": "^1.5.4",
         "vue": "2.4.2",
