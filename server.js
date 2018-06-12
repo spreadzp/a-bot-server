@@ -117,7 +117,7 @@ var ipc=require('node-ipc');
     ipc.config.retry= 1500;
  
     ipc.serveNet( 
-        '18.196.15.151',
+        '54.152.175.163',
         9999,
         'udp4',
         function(){
