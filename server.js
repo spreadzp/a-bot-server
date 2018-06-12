@@ -154,15 +154,11 @@ serverUdp.on('listening',function(){
 //emits after the socket is closed using socket.close();
 serverUdp.on('close',function(){
   console.log('Socket is closed !');
-});
+}); 
 
-//serverUdp.bind(9999);
 serverUdp.bind({
-    address: '0.0.0.0',
+    address: '54.152.175.163',
     port: 9999
 }, (err) => {
     !!err && console.error(err);
-});
-/* setTimeout(function(){
-serverUdp.close();
-},8000); */
+});  
