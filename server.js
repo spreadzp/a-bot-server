@@ -1,6 +1,6 @@
 const net = require('toa-net')
 const logger = require('./winston');
-
+const udp = require('dgram');
 const pricesFromExchanges = [];
 const exchanges = [];
 const priceTable = {};
@@ -109,37 +109,60 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
             `
         );
     }
-}
+}  
+// --------------------creating a udp server --------------------
 
-var ipc=require('node-ipc');
- 
-    ipc.config.id   = 'server';
-    ipc.config.retry= 1500;
- 
-    ipc.serveNet( 
-        '54.152.175.163',
-        9999,
-        'udp4',
-        function(){
-            console.log(123);
- 
-            ipc.server.on(
-                'time',
-                function(data,socket){
-                    ipc.log('got a message from '.debug, data.from.variable ,' : '.debug, data.message.variable);
-                    ipc.server.emit(
-                        socket, 
-                        'time',
-                        {
-                            from    : ipc.config.id,
-                            message : Date.now() - parseInt(data.message)
-                        }
-                    );
-                }
-            );
- 
-            console.log(ipc.server);
-        }
-    );
- 
-    ipc.server.start();
+// creating a udp server
+const serverUdp = udp.createSocket('udp4');
+
+// emits when any error occurs
+serverUdp.on('error',function(error){
+  console.log('Error: ' + error);
+  serverUdp.close();
+});
+
+// emits on new datagram msg
+serverUdp.on('message',function(msg,info){
+  console.log('Data received from client : ' + msg.toString());
+  let diff = Date.now() - parseInt(msg);
+  console.log('diff :', diff);
+  console.log('Received %d bytes from %s:%d\n',msg.length, info.address, info.port);
+
+//sending msg
+serverUdp.send(Buffer((Date.now() - diff).toString()),info.port,'localhost',function(error){
+  if(error){
+    client.close();
+  }else{
+    console.log('Data sent !!!');
+  }
+
+});
+
+});
+
+//emits when socket is ready and listening for datagram msgs
+serverUdp.on('listening',function(){
+  var address = server.address();
+  var port = address.port;
+  var family = address.family;
+  var ipaddr = address.address;
+  console.log('Server is listening at port' + port);
+  console.log('Server ip :' + ipaddr);
+  console.log('Server is IP4/IP6 : ' + family);
+});
+
+//emits after the socket is closed using socket.close();
+serverUdp.on('close',function(){
+  console.log('Socket is closed !');
+});
+
+//serverUdp.bind(9999);
+serverUdp.bind({
+    address: '0.0.0.0',
+    port: 9999
+}, (err) => {
+    !!err && console.error(err);
+});
+/* setTimeout(function(){
+serverUdp.close();
+},8000); */
