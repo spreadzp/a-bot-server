@@ -110,3 +110,35 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
         );
     }
 }
+
+var ipc=require('node-ipc');
+ 
+    ipc.config.id   = 'server';
+    ipc.config.retry= 1500;
+ 
+    ipc.serveNet( 
+        9999,
+        'udp4',
+        function(){
+            console.log(123);
+ 
+            ipc.server.on(
+                'time',
+                function(data,socket){
+                    ipc.log('got a message from '.debug, data.from.variable ,' : '.debug, data.message.variable);
+                    ipc.server.emit(
+                        socket, 
+                        'time',
+                        {
+                            from    : ipc.config.id,
+                            message : Date.now() - parseInt(data.message)
+                        }
+                    );
+                }
+            );
+ 
+            console.log(ipc.server);
+        }
+    );
+ 
+    ipc.server.start();
