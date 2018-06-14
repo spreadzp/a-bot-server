@@ -127,7 +127,7 @@ serverUdp.on('message', function (msg, info) {
     let data = JSON.parse(msg.toString('utf-8'));
 //console.log('msg :',data); 
     diff = diff - parseInt(data.time);
-    console.log(`UDP mashine = ${data.mashine} ${data.nameSocket} = ${data.closePrice} volume = ${data.numberTrade} sent = ${diff} ms`);
+    console.log(`UDP mashine = ${data.mashine} ${data.nameSocket} = ${data.closePrice} volume = ${data.volume} sent = ${diff} ms`);
     //console.log('Received %d bytes from %s:%d\n',msg.length, info.address, info.port);
 
     //sending msg
