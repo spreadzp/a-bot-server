@@ -12,7 +12,7 @@ const server = new net.Server(function (socket) {
         if (message.type === 'notification') {
             let diff = Date.now() - parseInt(message.payload.params[4]);
             if (Number.isInteger(diff)) {
-                console.log(`TCP ${message.payload.method} = ${message.payload.params[0]} volume =${message.payload.params[2]} sent = ${diff} ms`);
+                console.log(`TCP mashine = ${message.payload.params[5]} ${message.payload.method} = ${message.payload.params[0]} volume =${message.payload.params[3]} sent = ${diff} ms`);
             }
 
             parseMessage(message);
@@ -123,10 +123,11 @@ serverUdp.on('error', function (error) {
 // emits on new datagram msg
 serverUdp.on('message', function (msg, info) {
     //console.log('Data received from client : ' + msg.toString());
-   let data = JSON.parse(msg.toString('utf-8'));
+    let diff = Date.now();
+    let data = JSON.parse(msg.toString('utf-8'));
 //console.log('msg :',data); 
-    let diff = Date.now() - parseInt(data.time);
-    console.log(`UDP ${data.nameSocket} = ${data.closePrice} volume = ${data.volume} sent = ${diff} ms`);
+    diff = diff - parseInt(data.time);
+    console.log(`UDP mashine = ${data.mashine} ${data.nameSocket} = ${data.closePrice} volume = ${data.numberTrade} sent = ${diff} ms`);
     //console.log('Received %d bytes from %s:%d\n',msg.length, info.address, info.port);
 
     //sending msg
