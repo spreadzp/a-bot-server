@@ -12,7 +12,7 @@ const server = new net.Server(function (socket) {
         if (message.type === 'notification') {
             let diff = Date.now() - parseInt(message.payload.params[4]);
             if (Number.isInteger(diff)) {
-                console.log(`TCP ${message.payload.method} = ${message.payload.params[0]} sent = ${diff} ms`);
+                console.log(`TCP ${message.payload.method} = ${message.payload.params[0]} volume =${message.payload.params[2]} sent = ${diff} ms`);
             }
 
             parseMessage(message);
@@ -125,19 +125,19 @@ serverUdp.on('message', function (msg, info) {
     //console.log('Data received from client : ' + msg.toString());
    let data = JSON.parse(msg.toString('utf-8'));
 //console.log('msg :',data); 
-    let diff = Date.now() - +data.time;
-    console.log(`UDP ${data.nameSocket} = ${data.closePrice} sent = ${diff} ms`);
+    let diff = Date.now() - parseInt(data.time);
+    console.log(`UDP ${data.nameSocket} = ${data.closePrice} volume = ${data.volume} sent = ${diff} ms`);
     //console.log('Received %d bytes from %s:%d\n',msg.length, info.address, info.port);
 
     //sending msg
-    serverUdp.send(Buffer((Date.now() - diff).toString()), info.port, 'localhost', function (error) {
+    /* serverUdp.send(Buffer((Date.now() - diff).toString()), info.port, 'localhost', function (error) {
         if (error) {
             client.close();
         } else {
             //console.log('Data sent !!!');
         }
 
-    });
+    }); */
 
 });
 
