@@ -1,11 +1,12 @@
 const net = require('toa-net');
 const logger = require('./winston');
 const udp = require('dgram');
+const parser = require('./parser');
 const pricesFromExchanges = [];
 const exchanges = [];
 const priceTable = {};
 const auth = new net.Auth('secretxxx');
-let client = null;
+let client = null; 
 
 const server = new net.Server(function (socket) {
     socket.on('message', (message) => {
@@ -125,19 +126,22 @@ serverUdp.on('error', function (error) {
 serverUdp.on('message', function (msg, info) { 
     let diff = Date.now();
     let data = JSON.parse(msg.toString('utf-8')); 
-    diff = diff - parseInt(data.time); 
-    console.log(`UDP mashine = ${data.mashine} ${data.nameSocket} = ${data.closePrice} volume = ${data.volume} sent = ${diff} ms`);
+    parser.parseData(data);
+    parser.showData();
+    //console.log('data :', data);
+    //diff = diff - parseInt(data.time); 
+    //console.log(`UDP mashine = ${data.mashine} ${data.nameSocket} = ${data.closePrice} volume = ${data.volume} sent = ${diff} ms`);
     //console.log('Received %d bytes from %s:%d\n',msg.length, info.address, info.port);
 
     //sending msg
-    /* serverUdp.send(Buffer((Date.now() - diff).toString()), info.port, 'localhost', function (error) {
+     /* serverUdp.send(Buffer((Date.now().toString()), info.port, 'localhost', function (error) {
         if (error) {
             client.close();
         } else {
             //console.log('Data sent !!!');
         }
 
-    }); */
+    }));  */
 
 });
 
