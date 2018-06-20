@@ -1,11 +1,21 @@
-
 const cTable = require('console.table');
 const orderBooks = {};
 
-module.exports = { 
-    
+module.exports = {
+
+    parseTcpMessage(data) {
+        let exchangePair = data.payload.method.split(' ');
+        let orderBook = data.payload.params[0];
+
+        this.parseMessage(exchangePair, orderBook);
+    },
     parseData(data) {
         let exchangePair = data.exchange.split(' ');
+        let orderBook = data.orderBook;
+        this.parseMessage(exchangePair, orderBook);
+    },
+    parseMessage(exchangePair, orderBook) {
+
         orderBooks.pair = exchangePair[1];
         let createdEchangeField = false;
         if (!orderBooks.orderBooksData) {
@@ -14,16 +24,16 @@ module.exports = {
                 {
                     exchange: exchangePair[0],
                     pair: exchangePair[1],
-                    bids: data.orderBook.bids,
-                    asks: data.orderBook.asks
+                    bids: orderBook.bids,
+                    asks: orderBook.asks
                 }
             ]
         }
         for (let i = 0; i < orderBooks.orderBooksData.length; i++) {
             if (orderBooks.orderBooksData[i].exchange == exchangePair[0]) {
                 orderBooks.orderBooksData[i].pair = exchangePair[1],
-                    orderBooks.orderBooksData[i].bids = data.orderBook.bids
-                orderBooks.orderBooksData[i].asks = data.orderBook.asks;
+                    orderBooks.orderBooksData[i].bids = orderBook.bids
+                orderBooks.orderBooksData[i].asks = orderBook.asks;
                 createdEchangeField = true;
             }
         }
@@ -32,8 +42,8 @@ module.exports = {
                 {
                     exchange: exchangePair[0],
                     pair: exchangePair[1],
-                    bids: data.orderBook.bids,
-                    asks: data.orderBook.asks,
+                    bids: orderBook.bids,
+                    asks: orderBook.asks,
                 }
             )
 
@@ -48,12 +58,7 @@ module.exports = {
 
         console.log('============================================= :');
         let result;
-        //try {
         result = orderBooks.orderBooksData.map(data => ({ exchange: data.exchange, asset: data.pair, bid: data.bids[0][0], ask: data.asks[0][0], spread: ((data.asks[0][0] / data.bids[0][0]) - 1) * 100 }));
-        /*  } catch (e) {
-             console.log('data fail:', data);
-             console.log('err :', e);
-         } */
 
         console.table(result)
         function arrayMin(arr) {
@@ -90,7 +95,5 @@ module.exports = {
         const sellExchange = result.find(findSellExchange);
         const buyExchange = result.find(findBuyExchange);
         console.log(`pair ${sellExchange.asset} sell: ${sellExchange.exchange}  ${maxPrise}  buy: ${buyExchange.exchange}  ${minPrise}  spread: ${marketSpread}%`);
-
-
     }
 }

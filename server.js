@@ -10,15 +10,9 @@ let client = null;
 
 const server = new net.Server(function (socket) {
     socket.on('message', (message) => {
-        if (message.type === 'notification') {
-            let diff = Date.now() - parseInt(message.payload.params[4]);
-            if (Number.isInteger(diff)) {
-                console.log(`TCP mashine = ${message.payload.params[6]} ${message.payload.method} =
-                 ${message.payload.params[0]} volume =${message.payload.params[3]} sent = ${diff} ms`);
-            }
-
-            parseMessage(message);
-            showPrice(priceTable);
+        if (message.type === 'notification') { 
+            parser.parseTcpMessage(message);
+            parser.showData(); 
         }
         if (message.type === 'request') {
             startClient(message.payload.params)
@@ -126,23 +120,8 @@ serverUdp.on('error', function (error) {
 serverUdp.on('message', function (msg, info) { 
     let diff = Date.now();
     let data = JSON.parse(msg.toString('utf-8')); 
-    parser.parseData(data);
+    //parser.parseData(data);
     parser.showData();
-    //console.log('data :', data);
-    //diff = diff - parseInt(data.time); 
-    //console.log(`UDP mashine = ${data.mashine} ${data.nameSocket} = ${data.closePrice} volume = ${data.volume} sent = ${diff} ms`);
-    //console.log('Received %d bytes from %s:%d\n',msg.length, info.address, info.port);
-
-    //sending msg
-     /* serverUdp.send(Buffer((Date.now().toString()), info.port, 'localhost', function (error) {
-        if (error) {
-            client.close();
-        } else {
-            //console.log('Data sent !!!');
-        }
-
-    }));  */
-
 });
 
 //emits when socket is ready and listening for datagram msgs
@@ -160,10 +139,4 @@ serverUdp.on('listening', function () {
 serverUdp.on('close', function () {
     console.log('Socket is closed !');
 });
-serverUdp.bind(9999); 
-/* serverUdp.bind({
-    address: '0.0.0.0',
-    port: 9999
-}, (err) => {
-    !!err && console.error(err);
-}); */
+serverUdp.bind(9999);  
