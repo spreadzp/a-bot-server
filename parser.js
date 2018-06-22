@@ -135,7 +135,6 @@ module.exports = {
         };
         if (sellExchange && buyExchange && marketSpread > process.env.PERCENT_PROFIT) {
 
-            console.log(`pair ${sellExchange.pair} sell: ${sellExchange.exchange}  ${maxPrise}  buy: ${buyExchange.exchange}  ${minPrise}  spread: ${marketSpread}%`);
             const sellerOrder = {
                 pair: sellExchange.pair,
                 exchange: sellExchange.exchange,
