@@ -25,6 +25,7 @@
         "node-emoji": "^1.8.1",
         "popper.js": "^1.12.9",
         "toa-net": "^1.5.4",
+        "uniqid": "^5.0.3",
         "vue": "2.4.2",
         "vue-js-modal": "^1.2.8",
         "vue-progressbar": "^0.7.2",

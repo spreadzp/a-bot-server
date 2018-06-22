@@ -4,7 +4,9 @@ require('dotenv').config();
 
 const orderBooks = {};
 let result;
-let profit = 0;
+let connectedExhanges;
+let currentBalance = 0;
+let currentVolume = 0;
 
 module.exports = {
 
@@ -21,6 +23,10 @@ module.exports = {
         let host = data.host;
         let port = data.port;
         this.parseMessage(exchangePair, orderBook, host, port);
+    },
+    parseSentOrder(data) {
+        const responseOrderData = data.payload.params[0];
+        this.defineStateBalance(responseOrderData);
     },
     parseMessage(exchangePair, orderBook, host, port) {
         orderBooks.pair = exchangePair[1];
@@ -77,10 +83,11 @@ module.exports = {
     },
     makeOrders() {
         this.showData();
-        return this.defineSellBuy(result);
-
+        return this.defineSellBuy(connectedExhanges);
     },
     showData() {
+        console.log('');
+        console.log('');
         console.log('=======================================================================');
 
         result = orderBooks.orderBooksData.map(data => ({
@@ -88,22 +95,36 @@ module.exports = {
             bid: data.bids[0][0], ask: data.asks[0][0], spread: ((data.asks[0][0] / data.bids[0][0]) - 1) * 100,
             status: data.updateStatus > 0, host: data.host, port: data.port
         }));
+        connectedExhanges = result.filter(this.checkConnectedExchanges);
         const failExchangePrises = result.filter(this.isDisonnectedBot);
         if (failExchangePrises.length) {
             console.table(`${emoji.get('white_frowning_face')} Disconnected bots`, failExchangePrises);
             console.log(`${emoji.get('hammer_and_pick')}  <---------------------------------------------->  ${emoji.get('hammer_and_pick')}`);
         }
+        console.log('');
         console.table(result)
-        console.log(`@@@@@@@@@@  PROFIT = ${profit}BTC`);
-        //this.defineSellBuy(result);
+        console.log('');
+        console.log(`@@@@@@@@@@  BALANCE = ${currentBalance}BTC VOLUME = ${currentVolume}`);
     },
-    defineSellBuy(result) {
+    defineStateBalance(data) {
+        if (data.typeOrder === 'sell' && data.fulfill) {
+            currentVolume -= data.volume;
+            currentBalance += data.price * data.volume;
+        }
+        if (data.typeOrder === 'buy' && data.fulfill) {
+            currentVolume += data.volume;
+            currentBalance -= data.price * data.volume;
+        } else {
+            console.log('');
+            console.log(`/@---@/ !! Arbitrage  order for ${data.typeOrder} # ${data.arbitrageId} not fulfilled!!!!`);
+            console.log('');
+        }
+    },
+    defineSellBuy(result) { 
+        let ordersBot;
         const maxPrise = this.arrayMax(result);
         const minPrise = this.arrayMin(result);
         const marketSpread = (maxPrise / minPrise - 1) * 100;
-
-
-        //result.find(isDisonnectedBot);
         const sellExchange = result.find(findSellExchange);
         const buyExchange = result.find(findBuyExchange);
         function findBuyExchange(data) {
@@ -112,31 +133,41 @@ module.exports = {
         function findSellExchange(data) {
             return data.ask === maxPrise;
         };
-        let ordersBot;
         if (sellExchange && buyExchange && marketSpread > process.env.PERCENT_PROFIT) {
-            profit += maxPrise - minPrise;
+
             console.log(`pair ${sellExchange.pair} sell: ${sellExchange.exchange}  ${maxPrise}  buy: ${buyExchange.exchange}  ${minPrise}  spread: ${marketSpread}%`);
-            ordersBot = {
-                seller: {
-                    pair: sellExchange.pair,
-                    exchange: sellExchange.exchange,
-                    price: maxPrise,
-                    volume: 0,
-                    host: sellExchange.host,
-                    port: sellExchange.port
-                },
-                buyer: {
-                    pair: buyExchange.pair,
-                    exchange: buyExchange.exchange,
-                    price: minPrise,
-                    volume: 0,
-                    host: buyExchange.host,
-                    port: buyExchange.port
-                }
-            }
+            const sellerOrder = {
+                pair: sellExchange.pair,
+                exchange: sellExchange.exchange,
+                price: maxPrise,
+                volume: 1,
+                host: sellExchange.host,
+                port: sellExchange.port
+            };
+            const buyerOrder = {
+                pair: buyExchange.pair,
+                exchange: buyExchange.exchange,
+                price: minPrise,
+                volume: 1,
+                host: buyExchange.host,
+                port: buyExchange.port
+            };
+
+            
+            if (currentVolume === 0) {
+                ordersBot = Object.assign({ seller: sellerOrder }, { buyer: buyerOrder });
+                console.log(`pair ${sellExchange.pair} sell: ${ordersBot.seller.exchange} ${ordersBot.seller.price} buy: ${ordersBot.buyer.exchange} ${ordersBot.buyer.price}  spread: ${marketSpread}%`); 
+            } if (currentVolume > 0) {
+                ordersBot = Object.assign({ seller: sellerOrder });
+                console.log(`pair ${sellExchange.pair} sell: ${ordersBot.seller.exchange} ${ordersBot.seller.price}  spread: ${marketSpread}%`); 
+            } if (currentVolume < 0) {
+                ordersBot = Object.assign({ buyer: buyerOrder });
+                console.log(`pair ${sellExchange.pair} buy: ${ordersBot.buyer.exchange} ${ordersBot.buyer.price}  spread: ${marketSpread}%`); 
+            } 
         }
-        return ordersBot;
-    },
+       
+            return ordersBot;
+        },
 
     isDisonnectedBot(data) {
         if (data.status) {
@@ -146,7 +177,13 @@ module.exports = {
             console.log(`from ${data.exchange} old data ${data.pair}, try reconnect ${data.host}:${data.port} ${emoji.get('exclamation')}`);
             return true;
         }
-
+    },
+    checkConnectedExchanges(data) {
+        if (data.status) {
+            return true;
+        } else {
+            return false;
+        }
     },
     arrayMin(arr) {
         var len = arr.length, min = Infinity;
