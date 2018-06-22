@@ -1,37 +1,11 @@
-<p align="center"><a href="https://koa-vue-notes-web.innermonkdesign.com/" target="_blank"><img width="200" src="./static/koa-vue-notes-icon.png"></a></p>
-
-<p align="center">
-  <a href="http://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fjohndatserakis%2Fkoa-vue-notes-web&text=Check%20out%20koa-vue-notes-web%20on%20GitHub&via=innermonkdesign">
-  <img src="https://img.shields.io/twitter/url/https/github.com/johndatserakis/koa-vue-notes-web.svg?style=social" alt="Tweet"></a>
-</p>
-
-# Koa-Vue-Notes-Web
-
-This is a simple SPA built using [Koa](http://koajs.com/) (2.3) as the backend and [Vue](https://vuejs.org/) (2.4) as the frontend. Click [here](https://github.com/johndatserakis/koa-vue-notes-api) to see the backend Koa code. Click [here](https://koa-vue-notes-web.innermonkdesign.com/) to view the app live. You can also check out the [koa-vue-notes-project](https://github.com/johndatserakis/koa-vue-notes-project) repo if you like to have both your frontend and backend living within the same folder.
-
-## Features
-- Vue 2.4 (Initialized by Vue-CLI with Webpack)
-- Vue-Router
-- Vuex
-- Fully written using async/await
-- Bootstrap 4 Beta
-- SASS
-- Vuelidate validation library
-- Vue-Toasted toast messages
-- JWT for authentication
-- Axios
-- Font-Awesome
-- Vue-Progressbar
-- Vue-Js-Modal
-- Jest and Vue-Test-Utils for testing
-- And more...
 
 ## Installing / Getting started
 
 ``` bash
 # install dependencies
 npm install
+
+cp example.env .env
 
 # serve with hot reload at localhost:8080
 npm run watch
@@ -119,8 +93,4 @@ Testing is done using the newly official [vue-test-utils](https://github.com/vue
 
 Go ahead and fork the project! Message me here if you have questions or submit an issue if needed. I'll be making touch-ups as time goes on. Have fun with this!
 
-## License
-
-Copywrite 2017 John Datserakis
-
-[MIT](http://opensource.org/licenses/MIT)
+## License 

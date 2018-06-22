@@ -6,13 +6,14 @@ const pricesFromExchanges = [];
 const exchanges = [];
 const priceTable = {};
 const auth = new net.Auth('secretxxx');
-let client = null; 
+let client = null;
 
 const server = new net.Server(function (socket) {
     socket.on('message', (message) => {
-        if (message.type === 'notification') { 
+        if (message.type === 'notification') {
             parser.parseTcpMessage(message);
-            parser.showData(); 
+            const orders = parser.makeOrders();
+            sendOrdersToBot(orders);
         }
         if (message.type === 'request') {
             startClient(message.payload.params)
@@ -55,10 +56,6 @@ function parseMessage(message) {
     priceTable[message.payload.method] = message.payload.params[0];
 }
 
-function showPrice(prices) {
-    //console.log('prices :', prices);
-}
-
 function createClient(clientSocket) {
     client = new net.Client()
     // Enable authentication for client
@@ -68,12 +65,24 @@ function createClient(clientSocket) {
     client.connect(clientSocket);
 }
 
-function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }) {
-    const newExchange = { serverPort, url, exchange }
-    exchanges.push(newExchange);
+function sendOrdersToBot(orders) {
+    if (orders) {
+        const parametersSellOrder = {
+            serverPort: orders.seller.port, host: orders.seller.host,
+            order: { pair: orders.seller.pair, price: orders.seller.price, volume: orders.seller.volume, typeOrder: 'sell' }
+        }
+        startClient(parametersSellOrder);
+        const parametersBuyOrder = {
+            serverPort: orders.buyer.port, host: orders.buyer.host,
+            order: { pair: orders.buyer.pair, price: orders.buyer.price, volume: orders.buyer.volume, typeOrder: 'buy' }
+        }
+        startClient(parametersBuyOrder);
+    }
+}
 
+function startClient(order) {
     try {
-        const clientSocket = `tcp://${url}:${serverPort}`;
+        const clientSocket = `tcp://${order.host}:${order.serverPort}`;
         createClient(clientSocket);
         client.on('error', (err) => {
             //console.log('err.trace :', err); 
@@ -83,60 +92,25 @@ function startClient({ serverPort = 0, url = 'localhost', exchange = 'Bittrex' }
             //createClient(clientSocket);
             clientReconnection(clientSocket)
         });
-        client.notification('hello', [`+++++++${exchange} ${Date.now()}`])
+        const stringOrder = JSON.stringify(order.order);
+        client.notification('sendOrder', [`${stringOrder}`])
     } catch (e) {
-        //console.log('err :', e);
+        console.log('err :', e);
 
     } finally {
         //client.destroy();
     }
 
-    function clientReconnection(clientSocket) {
-        //console.log('client try reconnecting to port :', clientSocket);
+    function clientReconnection(clientSocket) { 
         client.reconnect();
         logger.log(`info`,
             `client.rpcCount= ${client.rpcCount}
-            client.socket= ${client.socket}
-            client.connected= ${client.connected}
-            client.rpcCount= ${client.rpcCount}
-            client.connectOptions= ${client.connectOptions}
-            client.MAX_ATTEMPTS= ${client.MAX_ATTEMPTS}
-            `
+                client.socket= ${client.socket}
+                client.connected= ${client.connected}
+                client.rpcCount= ${client.rpcCount}
+                client.connectOptions= ${client.connectOptions}
+                client.MAX_ATTEMPTS= ${client.MAX_ATTEMPTS}   
+                `
         );
     }
 }
-// --------------------creating a udp server --------------------
-
-// creating a udp server
-const serverUdp = udp.createSocket('udp4');
-
-// emits when any error occurs
-serverUdp.on('error', function (error) {
-    console.log('Error: ' + error);
-    serverUdp.close();
-});
-
-// emits on new datagram msg
-serverUdp.on('message', function (msg, info) { 
-    let diff = Date.now();
-    let data = JSON.parse(msg.toString('utf-8')); 
-    //parser.parseData(data);
-    parser.showData();
-});
-
-//emits when socket is ready and listening for datagram msgs
-serverUdp.on('listening', function () {
-    var address = server.address();
-    var port = address.port;
-    var family = address.family;
-    var ipaddr = address.address;
-    console.log('Server is listening at port' + port);
-    console.log('Server ip :' + ipaddr);
-    console.log('Server is IP4/IP6 : ' + family);
-});
-
-//emits after the socket is closed using socket.close();
-serverUdp.on('close', function () {
-    console.log('Socket is closed !');
-});
-serverUdp.bind(9999);  
